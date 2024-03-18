@@ -1,0 +1,71 @@
+<!-- Althea Irish M. Manalo - Django Activity #2 - March 18, 2024 -->
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'weather/index.css' %}">
+    <title>Weather App</title>
+</head>
+
+<body>
+    <div class="form-content">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+    
+            {{ city_input.as_p }}
+            <input type="submit" value="Submit" />
+        </form>
+    </div>
+    
+    {% if response and not response.error %}
+        <!-- if there is content in the api response and there are no errors, then display them -->
+
+        <h1>{{response.location.name}}, {{response.location.country}} </h1>
+        <img src="{{response.current.condition.icon}}" alt="weather condition icon">
+        <p>Experiencing {{response.current.temp_c}} celsius of weather</p>
+        <p>Humidity: {{response.current.humidity}}%</p>
+        <p>Weather condition of {{response.current.condition.text}}</p>
+
+    {% if forecast %}
+        <h2>Forecast for {{ forecast.location.name }}</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Weather</th>
+                    <th>High (°C)</th>
+                    <th>Low (°C)</th>
+                    <th>Average Humidity</th>
+                    <th>Moon Phase</th> 
+                </tr>
+            </thead>
+            <tbody>
+            {% for day in forecast.forecast.forecastday %} <tr>
+                <td>{{ day.date }}</td>
+                <td>{{ day.day.condition.text }}</td>
+                <td>{{ day.day.maxtemp_c }}</td>
+                <td>{{ day.day.mintemp_c }}</td>
+                <td>{{ day.day.avghumidity }}</td>
+                <td>{{ day.astro.moon_phase }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+    {% elif response.error %}
+      <h1>{{response.error}}</h1>
+
+
+    {% else %}
+        <h1>Please make a search, input a city name</h1>
+
+    {% endif %}
+
+</body>
+
+</html>
